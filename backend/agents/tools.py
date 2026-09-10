@@ -64,7 +64,15 @@ class LogComplaintTool:
 
 
 class EditComplaintTool:
-    """Tool 2: Modifies existing complaint fields via natural language without overwriting intact fields."""
+    """
+    Tool 2: Modifies existing complaint fields via natural language without overwriting intact fields.
+    
+    Quality Engineering Decision (ALCOA+ Data Integrity):
+    In pharmaceutical manufacturing QMS, accidental overwriting or erasure of unmentioned
+    attributes during an edit violates FDA 21 CFR Part 11 / ALCOA+ data integrity principles.
+    We enforce a non-destructive patch strategy where untouched fields are guaranteed immutable,
+    and only explicitly targeted keys are modified.
+    """
 
     @staticmethod
     def run(prompt: str, current_form: Dict[str, Any], api_key: str = None, model: str = "gemma2-9b-it") -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any], str]:
