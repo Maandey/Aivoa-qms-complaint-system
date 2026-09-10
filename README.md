@@ -3,10 +3,6 @@
 
 An enterprise-grade, AI-powered Customer Complaint Management System engineered for pharmaceutical manufacturers producing **Active Pharmaceutical Ingredients (API)** and **Finished Dosage Forms (FDF)**.
 
-Built for the **AIVOA Round 1 AI Product Engineer** technical assignment according to the provided reference UI screenshot and video workflow specification.
-
----
-
 ## System Architecture
 
 ```
