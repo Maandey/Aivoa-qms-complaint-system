@@ -187,5 +187,4 @@ This application incorporates key tenets of global pharmaceutical regulatory sta
 
 ---
 
-*Built with curiosity, robust software architecture, and product thinking for the AIVOA AI Product Engineer Internship.*
 
