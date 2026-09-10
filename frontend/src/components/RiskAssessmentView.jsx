@@ -169,3 +169,4 @@ export default function RiskAssessmentView({ risk, form }) {
     </div>
   );
 }
+

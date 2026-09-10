@@ -68,3 +68,4 @@ def call_groq_json(
     except Exception as e:
         logger.error(f"Groq API call failed: {e}")
         return None
+

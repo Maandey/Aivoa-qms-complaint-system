@@ -111,3 +111,4 @@ export const {
 } = complaintSlice.actions;
 
 export default complaintSlice.reducer;
+

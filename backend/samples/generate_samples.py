@@ -156,3 +156,4 @@ if __name__ == "__main__":
     generate_pdf_sample(os.path.join(out_dir, "sample_complaint_paracetamol.pdf"))
     generate_eml_sample(os.path.join(out_dir, "sample_complaint_atorvastatin.eml"))
     generate_txt_sample(os.path.join(out_dir, "sample_complaint_amoxicillin.txt"))
+

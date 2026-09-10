@@ -79,3 +79,4 @@ export async function updateComplaintStatus(id, status) {
   if (!response.ok) throw new Error('Failed to update status');
   return await response.json();
 }
+

@@ -70,3 +70,4 @@ class AuditLog(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
 
     complaint = relationship("Complaint", back_populates="audit_logs")
+

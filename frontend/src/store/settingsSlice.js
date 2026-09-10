@@ -26,3 +26,4 @@ const settingsSlice = createSlice({
 
 export const { setApiKey, setSelectedModel, setAutoRiskAnalysis } = settingsSlice.actions;
 export default settingsSlice.reducer;
+

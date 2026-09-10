@@ -22,3 +22,4 @@ class AgentState(TypedDict):
 
     # Status
     error: Optional[str]
+

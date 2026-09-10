@@ -115,3 +115,4 @@ export default function CompletenessView({ completeness, form }) {
     </div>
   );
 }
+
