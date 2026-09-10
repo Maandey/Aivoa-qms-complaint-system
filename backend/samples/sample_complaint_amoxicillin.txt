@@ -1,0 +1,19 @@
+PHARMACEUTICAL CUSTOMER COMPLAINT INTAKE MEMO
+
+Complaint Source: Retail Pharmacy Chain Logistics
+Customer Name: Apollo Pharmacy Central Distribution Center
+Complaint Date: 2024-07-04
+Product Name: Amoxicillin Oral Suspension
+Product Strength/Grade: 250 mg / 5 mL (100 mL bottle)
+Batch/Lot Number: AMX-8921
+Manufacturing Date: 2024-03-01
+Expiry Date: 2025-08-31
+Quantity Affected: 500 packs
+Complaint Type: Physical Defect / Inadequate Re-suspendability & Severe Caking
+Initial Severity: Major
+Priority: High
+
+Detailed Complaint Description:
+Multiple retail pharmacists across 18 store branches reported that bottles of Amoxicillin 250mg/5mL powder for oral suspension (Batch AMX-8921) have formed rock-hard solid cakes at the bottom of the amber glass bottles. When pharmacists followed label reconstitution directions (adding 68 mL of purified water and shaking vigorously for 2 minutes), the caked powder failed to redisperse, leaving large gritty agglomerates and incomplete suspension. 
+
+This creates a serious risk of dose heterogeneity and sub-potent antibiotic dosing for pediatric patients. Distribution of all 500 packs from this lot has been immediately frozen in the central warehouse. We require QA retain sample analysis and prompt corrective action.
