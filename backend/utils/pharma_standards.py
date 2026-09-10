@@ -98,3 +98,4 @@ def evaluate_shelf_life_status(mfg_date_str: str, exp_date_str: str, complaint_d
         "is_expired": False,
         "regulatory_note": "Defect occurred within licensed shelf-life. Investigation of stability retain samples mandatory."
     }
+

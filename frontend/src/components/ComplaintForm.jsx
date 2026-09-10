@@ -18,7 +18,10 @@ import {
   Sparkles,
   ShieldAlert,
   ChevronDown,
-  Info
+  Info,
+  Copy,
+  Check,
+  ArrowRight
 } from 'lucide-react';
 import RiskAssessmentView from './RiskAssessmentView';
 import CompletenessView from './CompletenessView';
@@ -28,13 +31,21 @@ export default function ComplaintForm() {
   const { form, riskAssessment, completeness, duplicates, highlightedFields, isDirty } = useSelector(
     (state) => state.complaint
   );
-  const [activeTab, setActiveTab] = useState('form'); // 'form' | 'risk' | 'capa' | 'completeness'
+  const [activeTab, setActiveTab] = useState('form'); // 'form' | 'risk' | 'completeness'
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [copiedKey, setCopiedKey] = useState('');
 
   const handleChange = (field, value) => {
     dispatch(updateFormField({ field, value }));
+  };
+
+  const handleCopy = (field, text) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedKey(field);
+    setTimeout(() => setCopiedKey(''), 1500);
   };
 
   const handleReset = () => {
@@ -78,43 +89,89 @@ export default function ComplaintForm() {
   const isFieldHighlighted = (field) => highlightedFields.includes(field);
 
   const getFieldClass = (field) => {
-    const base = "w-full text-xs sm:text-sm px-3 py-2 rounded border transition-all duration-200 outline-none";
+    const base = "w-full text-xs sm:text-sm px-3 py-2 rounded-lg border transition-all duration-200 outline-none";
     if (isFieldHighlighted(field)) {
-      return `${base} border-emerald-500 bg-emerald-50/40 text-slate-900 ring-2 ring-emerald-400/30`;
+      return `${base} border-emerald-500/80 bg-emerald-50/40 text-slate-900 ring-2 ring-emerald-500/10 animate-subtle-fade`;
     }
-    return `${base} border-slate-200 bg-white text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 hover:border-slate-300`;
+    return `${base} border-slate-200/90 bg-slate-50/20 text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-slate-800 focus:ring-1 focus:ring-slate-800/10 hover:border-slate-300`;
   };
 
+  const hasData = Boolean(form.batch_number || form.product_name);
+  const currentStep = hasData ? (riskAssessment ? 2 : 1) : 0;
+
   return (
-    <div className="bg-white rounded-xl border border-slate-200/90 shadow-sm flex flex-col h-full overflow-hidden">
+    <div className="bg-white rounded-xl border border-slate-200/80 shadow-card flex flex-col h-full overflow-hidden">
       
-      {/* Form Card Header */}
-      <div className="p-4 sm:p-5 border-b border-slate-100 bg-gradient-to-r from-slate-50/80 to-white flex items-start justify-between">
+      {/* Form Card Header with Subtle Palette */}
+      <div className="p-4 sm:p-5 border-b border-slate-100 bg-white flex items-start justify-between">
         <div>
-          <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-            Log Customer Complaint
-          </h1>
-          <p className="text-xs text-slate-500 font-medium mt-0.5">
-            API & FDF Quality Assurance Module
+          <div className="flex items-center gap-2">
+            <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+              Log Customer Complaint
+            </h1>
+            <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+              Form 211-A
+            </span>
+          </div>
+          <p className="text-xs text-slate-400 font-medium mt-0.5">
+            API & FDF Quality Assurance Module • US FDA 21 CFR 211.198
           </p>
         </div>
 
         {/* Status Pill & Compliance Tag */}
         <div className="flex items-center gap-2">
-          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 bg-slate-100/80 px-2 py-0.5 rounded border border-slate-200">
+          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200/70">
             <CheckCircle className="w-3 h-3 text-emerald-600" />
             <span>ALCOA+ Traceable</span>
           </span>
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/80 shadow-xs">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200/70 shadow-2xs">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse" />
             {form.status || 'Pending Triage'}
           </span>
         </div>
       </div>
 
+      {/* 3-Stage Regulatory Triage Stepper */}
+      <div className="px-5 py-2.5 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between text-[11px]">
+        <div className="flex items-center gap-2">
+          <span className={`w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px] ${
+            hasData ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-500'
+          }`}>
+            1
+          </span>
+          <span className={`font-semibold ${hasData ? 'text-slate-800' : 'text-slate-400'}`}>
+            Intake & AI Extraction
+          </span>
+        </div>
+
+        <div className="h-px bg-slate-200 flex-1 mx-3" />
+
+        <div className="flex items-center gap-2">
+          <span className={`w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px] ${
+            riskAssessment ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-500'
+          }`}>
+            2
+          </span>
+          <span className={`font-semibold ${riskAssessment ? 'text-slate-800' : 'text-slate-400'}`}>
+            ICH Q9 Risk Assessment
+          </span>
+        </div>
+
+        <div className="h-px bg-slate-200 flex-1 mx-3" />
+
+        <div className="flex items-center gap-2">
+          <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-[10px]">
+            3
+          </span>
+          <span className="font-medium text-slate-400">
+            QA Sign-Off
+          </span>
+        </div>
+      </div>
+
       {/* Duplicate Warning Banner if detected */}
       {duplicates && duplicates.length > 0 && (
-        <div className="bg-amber-50/90 border-b border-amber-200 px-4 py-2.5 flex items-start gap-2.5 text-xs text-amber-900">
+        <div className="bg-amber-50/80 border-b border-amber-200/70 px-4 py-2 flex items-start gap-2.5 text-xs text-amber-900">
           <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
           <div className="flex-1">
             <span className="font-semibold">Potential Recurring Defect: </span>
@@ -123,14 +180,14 @@ export default function ComplaintForm() {
         </div>
       )}
 
-      {/* View Switcher Tabs (Form Fields vs AI Risk Reasoning vs GMP Completeness) */}
-      <div className="px-4 pt-2 border-b border-slate-100 flex items-center space-x-1 bg-slate-50/50 text-xs">
+      {/* View Switcher Tabs (Form Fields vs AI Risk vs GMP Completeness) */}
+      <div className="px-4 pt-1.5 border-b border-slate-100 flex items-center space-x-1 bg-white text-xs">
         <button
           onClick={() => setActiveTab('form')}
-          className={`px-3 py-2 font-medium rounded-t-md transition-colors border-b-2 ${
+          className={`px-3 py-2 font-medium rounded-t-lg transition-colors border-b-2 ${
             activeTab === 'form' 
-              ? 'text-blue-600 border-blue-600 bg-white shadow-xs font-semibold' 
-              : 'text-slate-500 border-transparent hover:text-slate-800'
+              ? 'text-slate-900 border-slate-900 font-semibold' 
+              : 'text-slate-400 border-transparent hover:text-slate-700'
           }`}
         >
           Form Fields
@@ -138,17 +195,17 @@ export default function ComplaintForm() {
 
         <button
           onClick={() => setActiveTab('risk')}
-          className={`px-3 py-2 font-medium rounded-t-md transition-colors border-b-2 flex items-center gap-1 ${
+          className={`px-3 py-2 font-medium rounded-t-lg transition-colors border-b-2 flex items-center gap-1.5 ${
             activeTab === 'risk' 
-              ? 'text-blue-600 border-blue-600 bg-white shadow-xs font-semibold' 
-              : 'text-slate-500 border-transparent hover:text-slate-800'
+              ? 'text-slate-900 border-slate-900 font-semibold' 
+              : 'text-slate-400 border-transparent hover:text-slate-700'
           }`}
         >
-          <Sparkles className="w-3 h-3 text-blue-500" />
+          <Sparkles className="w-3 h-3 text-slate-600" />
           <span>AI Risk Assessment</span>
           {riskAssessment && (
-            <span className={`ml-1 text-[10px] px-1.5 py-0.2 rounded font-semibold ${
-              riskAssessment.severity === 'Critical' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+            <span className={`ml-1 text-[9px] px-1.5 py-0.2 rounded font-semibold ${
+              riskAssessment.severity === 'Critical' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
             }`}>
               {riskAssessment.severity}
             </span>
@@ -157,37 +214,37 @@ export default function ComplaintForm() {
 
         <button
           onClick={() => setActiveTab('completeness')}
-          className={`px-3 py-2 font-medium rounded-t-md transition-colors border-b-2 flex items-center gap-1 ${
+          className={`px-3 py-2 font-medium rounded-t-lg transition-colors border-b-2 flex items-center gap-1.5 ${
             activeTab === 'completeness' 
-              ? 'text-blue-600 border-blue-600 bg-white shadow-xs font-semibold' 
-              : 'text-slate-500 border-transparent hover:text-slate-800'
+              ? 'text-slate-900 border-slate-900 font-semibold' 
+              : 'text-slate-400 border-transparent hover:text-slate-700'
           }`}
         >
-          <FileCheck className="w-3 h-3 text-emerald-500" />
+          <FileCheck className="w-3 h-3 text-emerald-600" />
           <span>GMP Completeness</span>
-          <span className="ml-1 text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded font-semibold">
+          <span className="ml-1 text-[9px] bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded font-semibold">
             {completeness?.score || 0}%
           </span>
         </button>
       </div>
 
       {/* Main Tab Content */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-6 bg-white">
         
         {activeTab === 'risk' ? (
           <RiskAssessmentView risk={riskAssessment} form={form} />
         ) : activeTab === 'completeness' ? (
           <CompletenessView completeness={completeness} form={form} />
         ) : (
-          /* Form Fields View - exactly matching screenshot */
+          /* Form Fields View - matching screenshot sections with subtle borders */
           <div className="space-y-6">
 
             {/* 1. ORIGIN & CUSTOMER DETAILS */}
-            <div>
-              <div className="text-[11px] font-bold text-slate-500 tracking-wider uppercase mb-3 flex items-center gap-1.5">
+            <div className="p-3.5 rounded-lg bg-slate-50/40 border border-slate-100/90 space-y-3">
+              <div className="text-[11px] font-bold text-slate-500 tracking-wider uppercase flex items-center justify-between">
                 <span>1. Origin & Customer Details</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">
                     Complaint Source
@@ -202,8 +259,18 @@ export default function ComplaintForm() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
-                    Customer Name
+                  <label className="block text-xs font-medium text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Customer Name</span>
+                    {form.customer_name && (
+                      <button
+                        type="button"
+                        onClick={() => handleCopy('customer', form.customer_name)}
+                        className="text-[10px] text-slate-400 hover:text-slate-600 flex items-center gap-0.5"
+                      >
+                        {copiedKey === 'customer' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedKey === 'customer' ? 'Copied' : 'Copy'}</span>
+                      </button>
+                    )}
                   </label>
                   <input
                     type="text"
@@ -217,11 +284,11 @@ export default function ComplaintForm() {
             </div>
 
             {/* 2. PRODUCT & BATCH IDENTIFICATION */}
-            <div>
-              <div className="text-[11px] font-bold text-slate-500 tracking-wider uppercase mb-3 flex items-center gap-1.5">
+            <div className="p-3.5 rounded-lg bg-slate-50/40 border border-slate-100/90 space-y-3">
+              <div className="text-[11px] font-bold text-slate-500 tracking-wider uppercase flex items-center justify-between">
                 <span>2. Product & Batch Identification</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">
                     Product Name
@@ -249,8 +316,18 @@ export default function ComplaintForm() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
-                    Batch/Lot Number
+                  <label className="block text-xs font-medium text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Batch/Lot Number</span>
+                    {form.batch_number && (
+                      <button
+                        type="button"
+                        onClick={() => handleCopy('batch', form.batch_number)}
+                        className="text-[10px] text-slate-400 hover:text-slate-600 flex items-center gap-0.5"
+                      >
+                        {copiedKey === 'batch' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedKey === 'batch' ? 'Copied' : 'Copy'}</span>
+                      </button>
+                    )}
                   </label>
                   <input
                     type="text"
@@ -270,7 +347,7 @@ export default function ComplaintForm() {
                       type="text"
                       value={form.manufacturing_date}
                       onChange={(e) => handleChange('manufacturing_date', e.target.value)}
-                      placeholder="YYYY-MM-DD or Awaiting AI..."
+                      placeholder="YYYY-MM-DD"
                       className={`${getFieldClass('manufacturing_date')} pr-8`}
                     />
                     <Calendar className="w-4 h-4 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
@@ -286,7 +363,7 @@ export default function ComplaintForm() {
                       type="text"
                       value={form.expiry_date}
                       onChange={(e) => handleChange('expiry_date', e.target.value)}
-                      placeholder="YYYY-MM-DD or Awaiting AI..."
+                      placeholder="YYYY-MM-DD"
                       className={`${getFieldClass('expiry_date')} pr-8`}
                     />
                     <Calendar className="w-4 h-4 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
@@ -297,14 +374,14 @@ export default function ComplaintForm() {
                   <label className="block text-xs font-medium text-slate-700 mb-1">
                     Quantity Affected
                   </label>
-                  <div className="flex rounded border border-slate-200 overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                  <div className="flex rounded-lg border border-slate-200/90 overflow-hidden focus-within:border-slate-800 focus-within:ring-1 focus-within:ring-slate-800/10">
                     <input
                       type="text"
                       value={form.quantity_affected}
                       onChange={(e) => handleChange('quantity_affected', e.target.value)}
                       placeholder="Awaiting AI extraction..."
                       className={`flex-1 px-3 py-2 text-xs sm:text-sm outline-none ${
-                        isFieldHighlighted('quantity_affected') ? 'bg-emerald-50/50' : 'bg-white'
+                        isFieldHighlighted('quantity_affected') ? 'bg-emerald-50/40' : 'bg-slate-50/20'
                       }`}
                     />
                     <select
@@ -325,11 +402,11 @@ export default function ComplaintForm() {
             </div>
 
             {/* 3. COMPLAINT DETAILS */}
-            <div>
-              <div className="text-[11px] font-bold text-slate-500 tracking-wider uppercase mb-3 flex items-center gap-1.5">
+            <div className="p-3.5 rounded-lg bg-slate-50/40 border border-slate-100/90 space-y-3">
+              <div className="text-[11px] font-bold text-slate-500 tracking-wider uppercase">
                 <span>3. Complaint Details</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">
                     Complaint Type
@@ -352,7 +429,7 @@ export default function ComplaintForm() {
                       type="text"
                       value={form.complaint_date}
                       onChange={(e) => handleChange('complaint_date', e.target.value)}
-                      placeholder="YYYY-MM-DD or Awaiting AI..."
+                      placeholder="YYYY-MM-DD"
                       className={`${getFieldClass('complaint_date')} pr-8`}
                     />
                     <Calendar className="w-4 h-4 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
@@ -375,11 +452,11 @@ export default function ComplaintForm() {
             </div>
 
             {/* 4. INITIAL ASSESSMENT & PRIORITY */}
-            <div>
-              <div className="text-[11px] font-bold text-slate-500 tracking-wider uppercase mb-3 flex items-center gap-1.5">
+            <div className="p-3.5 rounded-lg bg-slate-50/40 border border-slate-100/90 space-y-3">
+              <div className="text-[11px] font-bold text-slate-500 tracking-wider uppercase">
                 <span>4. Initial Assessment & Priority</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">
                     Initial Severity
@@ -426,20 +503,20 @@ export default function ComplaintForm() {
       )}
 
       {errorMessage && (
-        <div className="mx-4 mb-2 p-2.5 bg-red-50 border border-red-200 text-red-800 rounded-lg text-xs flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+        <div className="mx-4 mb-2 p-2.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-lg text-xs flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
           <span>{errorMessage}</span>
         </div>
       )}
 
-      {/* Bottom Actions Row matching screenshot */}
-      <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      {/* Bottom Actions Row with Midnight Slate Button */}
+      <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
         <button
           type="button"
           onClick={handleReset}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-100 hover:text-slate-900 transition-colors shadow-xs"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-2xs"
         >
-          <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+          <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
           <span>Reset Form</span>
         </button>
 
@@ -448,7 +525,7 @@ export default function ComplaintForm() {
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 active:bg-blue-800 disabled:opacity-60 transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-slate-900 rounded-lg hover:bg-slate-800 active:bg-black disabled:opacity-50 transition-colors shadow-xs"
           >
             <Save className="w-3.5 h-3.5" />
             <span>{isSaving ? 'Saving to QMS...' : 'Save Complaint'}</span>
@@ -459,4 +536,3 @@ export default function ComplaintForm() {
     </div>
   );
 }
-
