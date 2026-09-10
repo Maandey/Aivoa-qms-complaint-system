@@ -4,7 +4,9 @@ import {
   updateFormField, 
   resetForm, 
   setLastSavedComplaint,
-  clearHighlights 
+  clearHighlights,
+  applySignOff,
+  revokeSignOff
 } from '../store/complaintSlice';
 import { clearChat } from '../store/chatSlice';
 import { saveComplaint } from '../services/api';
@@ -21,17 +23,19 @@ import {
   Info,
   Copy,
   Check,
-  ArrowRight
+  ArrowRight,
+  UserCheck
 } from 'lucide-react';
 import RiskAssessmentView from './RiskAssessmentView';
 import CompletenessView from './CompletenessView';
+import QASignOffView from './QASignOffView';
 
 export default function ComplaintForm() {
   const dispatch = useDispatch();
-  const { form, riskAssessment, completeness, duplicates, highlightedFields, isDirty } = useSelector(
+  const { form, riskAssessment, completeness, duplicates, highlightedFields, isDirty, qaSignOff } = useSelector(
     (state) => state.complaint
   );
-  const [activeTab, setActiveTab] = useState('form'); // 'form' | 'risk' | 'completeness'
+  const [activeTab, setActiveTab] = useState('form'); // 'form' | 'risk' | 'completeness' | 'signoff'
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -70,9 +74,12 @@ export default function ComplaintForm() {
     try {
       const payload = {
         ...form,
-        ai_risk_assessment: riskAssessment,
+        ai_risk_assessment: {
+          ...(riskAssessment || {}),
+          qa_signoff: qaSignOff
+        },
         completeness_score: completeness?.score || 85,
-        status: form.status || 'Pending Triage'
+        status: qaSignOff?.signed ? 'QA Authorized' : (form.status || 'Pending Triage')
       };
 
       const saved = await saveComplaint(payload);
@@ -124,49 +131,93 @@ export default function ComplaintForm() {
             <CheckCircle className="w-3 h-3 text-emerald-600" />
             <span>ALCOA+ Traceable</span>
           </span>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200/70 shadow-2xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse" />
-            {form.status || 'Pending Triage'}
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold shadow-2xs ${
+            qaSignOff?.signed 
+              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/80' 
+              : 'bg-amber-50 text-amber-800 border border-amber-200/70'
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+              qaSignOff?.signed ? 'bg-emerald-600' : 'bg-amber-500 animate-pulse'
+            }`} />
+            {qaSignOff?.signed ? 'QA Authorized' : (form.status || 'Pending Triage')}
           </span>
         </div>
       </div>
 
-      {/* 3-Stage Regulatory Triage Stepper */}
+      {/* 3-Stage Regulatory Triage Stepper (Interactive) */}
       <div className="px-5 py-2.5 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between text-[11px]">
-        <div className="flex items-center gap-2">
-          <span className={`w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px] ${
+        
+        {/* Step 1: Intake */}
+        <button
+          type="button"
+          onClick={() => setActiveTab('form')}
+          className="flex items-center gap-2 text-left hover:opacity-80 transition-opacity cursor-pointer group"
+          title="Click to view Form Fields"
+        >
+          <span className={`w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px] transition-colors ${
             hasData ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-500'
           }`}>
             1
           </span>
-          <span className={`font-semibold ${hasData ? 'text-slate-800' : 'text-slate-400'}`}>
+          <span className={`font-semibold transition-colors ${
+            activeTab === 'form' ? 'text-slate-900 underline underline-offset-4' : hasData ? 'text-slate-800' : 'text-slate-400'
+          }`}>
             Intake & AI Extraction
           </span>
-        </div>
+        </button>
 
         <div className="h-px bg-slate-200 flex-1 mx-3" />
 
-        <div className="flex items-center gap-2">
-          <span className={`w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px] ${
+        {/* Step 2: Risk Assessment */}
+        <button
+          type="button"
+          onClick={() => setActiveTab('risk')}
+          className="flex items-center gap-2 text-left hover:opacity-80 transition-opacity cursor-pointer group"
+          title="Click to view ICH Q9 Risk Assessment"
+        >
+          <span className={`w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px] transition-colors ${
             riskAssessment ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-500'
           }`}>
             2
           </span>
-          <span className={`font-semibold ${riskAssessment ? 'text-slate-800' : 'text-slate-400'}`}>
+          <span className={`font-semibold transition-colors ${
+            activeTab === 'risk' ? 'text-slate-900 underline underline-offset-4' : riskAssessment ? 'text-slate-800' : 'text-slate-400'
+          }`}>
             ICH Q9 Risk Assessment
           </span>
-        </div>
+        </button>
 
         <div className="h-px bg-slate-200 flex-1 mx-3" />
 
-        <div className="flex items-center gap-2">
-          <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-[10px]">
-            3
+        {/* Step 3: QA Sign-Off */}
+        <button
+          type="button"
+          onClick={() => setActiveTab('signoff')}
+          className="flex items-center gap-2 text-left hover:opacity-80 transition-opacity cursor-pointer group"
+          title="Click to perform QA Sign-Off (21 CFR Part 11)"
+        >
+          <span className={`w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px] transition-colors ${
+            qaSignOff?.signed 
+              ? 'bg-emerald-600 text-white' 
+              : hasData 
+                ? 'bg-slate-900 text-white' 
+                : 'bg-slate-200 text-slate-500'
+          }`}>
+            {qaSignOff?.signed ? '✓' : '3'}
           </span>
-          <span className="font-medium text-slate-400">
-            QA Sign-Off
+          <span className={`font-semibold transition-colors ${
+            activeTab === 'signoff' 
+              ? 'text-slate-900 underline underline-offset-4' 
+              : qaSignOff?.signed 
+                ? 'text-emerald-800 font-bold' 
+                : hasData 
+                  ? 'text-slate-800' 
+                  : 'text-slate-400'
+          }`}>
+            {qaSignOff?.signed ? 'QA Authorized' : 'QA Sign-Off'}
           </span>
-        </div>
+        </button>
+
       </div>
 
       {/* Duplicate Warning Banner if detected */}
@@ -180,11 +231,11 @@ export default function ComplaintForm() {
         </div>
       )}
 
-      {/* View Switcher Tabs (Form Fields vs AI Risk vs GMP Completeness) */}
-      <div className="px-4 pt-1.5 border-b border-slate-100 flex items-center space-x-1 bg-white text-xs">
+      {/* View Switcher Tabs (Form Fields vs AI Risk vs GMP Completeness vs QA Sign-Off) */}
+      <div className="px-4 pt-1.5 border-b border-slate-100 flex items-center space-x-1 bg-white text-xs overflow-x-auto">
         <button
           onClick={() => setActiveTab('form')}
-          className={`px-3 py-2 font-medium rounded-t-lg transition-colors border-b-2 ${
+          className={`px-3 py-2 font-medium rounded-t-lg transition-colors border-b-2 shrink-0 ${
             activeTab === 'form' 
               ? 'text-slate-900 border-slate-900 font-semibold' 
               : 'text-slate-400 border-transparent hover:text-slate-700'
@@ -195,7 +246,7 @@ export default function ComplaintForm() {
 
         <button
           onClick={() => setActiveTab('risk')}
-          className={`px-3 py-2 font-medium rounded-t-lg transition-colors border-b-2 flex items-center gap-1.5 ${
+          className={`px-3 py-2 font-medium rounded-t-lg transition-colors border-b-2 flex items-center gap-1.5 shrink-0 ${
             activeTab === 'risk' 
               ? 'text-slate-900 border-slate-900 font-semibold' 
               : 'text-slate-400 border-transparent hover:text-slate-700'
@@ -214,7 +265,7 @@ export default function ComplaintForm() {
 
         <button
           onClick={() => setActiveTab('completeness')}
-          className={`px-3 py-2 font-medium rounded-t-lg transition-colors border-b-2 flex items-center gap-1.5 ${
+          className={`px-3 py-2 font-medium rounded-t-lg transition-colors border-b-2 flex items-center gap-1.5 shrink-0 ${
             activeTab === 'completeness' 
               ? 'text-slate-900 border-slate-900 font-semibold' 
               : 'text-slate-400 border-transparent hover:text-slate-700'
@@ -226,6 +277,27 @@ export default function ComplaintForm() {
             {completeness?.score || 0}%
           </span>
         </button>
+
+        <button
+          onClick={() => setActiveTab('signoff')}
+          className={`px-3 py-2 font-medium rounded-t-lg transition-colors border-b-2 flex items-center gap-1.5 shrink-0 ${
+            activeTab === 'signoff' 
+              ? 'text-slate-900 border-slate-900 font-semibold' 
+              : 'text-slate-400 border-transparent hover:text-slate-700'
+          }`}
+        >
+          <UserCheck className="w-3 h-3 text-slate-600" />
+          <span>QA Sign-Off</span>
+          {qaSignOff?.signed ? (
+            <span className="ml-1 text-[9px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.2 rounded font-semibold flex items-center gap-0.5">
+              <span>✓ Authorized</span>
+            </span>
+          ) : (
+            <span className="ml-1 text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded font-medium">
+              21 CFR 11
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Main Tab Content */}
@@ -235,6 +307,23 @@ export default function ComplaintForm() {
           <RiskAssessmentView risk={riskAssessment} form={form} />
         ) : activeTab === 'completeness' ? (
           <CompletenessView completeness={completeness} form={form} />
+        ) : activeTab === 'signoff' ? (
+          <QASignOffView 
+            form={form} 
+            riskAssessment={riskAssessment} 
+            completeness={completeness} 
+            qaSignOff={qaSignOff}
+            onSignOff={(signData) => {
+              dispatch(applySignOff(signData));
+              setSaveSuccessMessage(`QA Sign-Off applied by ${signData.signedBy} under 21 CFR Part 11!`);
+              setTimeout(() => setSaveSuccessMessage(''), 4500);
+            }}
+            onRevoke={() => {
+              dispatch(revokeSignOff());
+              setErrorMessage('QA Sign-Off revoked. Complaint returned to pending review.');
+              setTimeout(() => setErrorMessage(''), 3500);
+            }}
+          />
         ) : (
           /* Form Fields View - matching screenshot sections with subtle borders */
           <div className="space-y-6">
@@ -521,11 +610,30 @@ export default function ComplaintForm() {
         </button>
 
         <div className="flex items-center gap-2">
+          {!qaSignOff?.signed && hasData && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('signoff')}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200/90 rounded-lg hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+              title="Review & Apply QA Electronic Signature (21 CFR Part 11)"
+            >
+              <UserCheck className="w-3.5 h-3.5 text-slate-600" />
+              <span>QA Sign-Off</span>
+            </button>
+          )}
+
+          {qaSignOff?.signed && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 rounded-lg shadow-2xs">
+              <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Signed by QA</span>
+            </span>
+          )}
+
           <button
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-slate-900 rounded-lg hover:bg-slate-800 active:bg-black disabled:opacity-50 transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-slate-900 rounded-lg hover:bg-slate-800 active:bg-black disabled:opacity-50 transition-colors shadow-xs cursor-pointer"
           >
             <Save className="w-3.5 h-3.5" />
             <span>{isSaving ? 'Saving to QMS...' : 'Save Complaint'}</span>

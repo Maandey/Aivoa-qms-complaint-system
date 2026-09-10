@@ -40,6 +40,7 @@ const initialState = {
   highlightedFields: [],
   isDirty: false,
   lastSavedComplaint: null,
+  qaSignOff: null,
 };
 
 const complaintSlice = createSlice({
@@ -94,10 +95,21 @@ const complaintSlice = createSlice({
       state.duplicates = [];
       state.highlightedFields = [];
       state.isDirty = false;
+      state.qaSignOff = null;
     },
     setLastSavedComplaint: (state, action) => {
       state.lastSavedComplaint = action.payload;
       state.isDirty = false;
+    },
+    applySignOff: (state, action) => {
+      state.qaSignOff = action.payload;
+      state.form.status = 'QA Authorized';
+      state.isDirty = true;
+    },
+    revokeSignOff: (state) => {
+      state.qaSignOff = null;
+      state.form.status = 'Pending Triage';
+      state.isDirty = true;
     }
   }
 });
@@ -107,7 +119,9 @@ export const {
   populateFromAI,
   clearHighlights,
   resetForm,
-  setLastSavedComplaint
+  setLastSavedComplaint,
+  applySignOff,
+  revokeSignOff
 } = complaintSlice.actions;
 
 export default complaintSlice.reducer;
