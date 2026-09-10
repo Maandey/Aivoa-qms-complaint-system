@@ -85,7 +85,7 @@ Built for the **AIVOA Round 1 AI Product Engineer** technical assignment accordi
 
 ---
 
-## 🌟 Bonus Features (Enterprise QMS Enhancements)
+## Bonus Features (Enterprise QMS Enhancements)
 
 1. **GMP Complaint Completeness Checker**:
    - Scores files from 0 to 100% against US FDA 21 CFR 211.198 mandatory complaint record requirements.
@@ -119,7 +119,7 @@ Built for the **AIVOA Round 1 AI Product Engineer** technical assignment accordi
 
 ---
 
-## ⚡ Quick Start Guide
+##   Quick Start Guide
 
 ### Option 1: 1-Click Startup Script (Recommended)
 
