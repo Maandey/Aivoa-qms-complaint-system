@@ -7,7 +7,7 @@ Built for the **AIVOA Round 1 AI Product Engineer** technical assignment accordi
 
 ---
 
-## 🏛️ System Architecture
+## System Architecture
 
 ```
                                   USER INTERFACE (React + Redux)
@@ -60,7 +60,7 @@ Built for the **AIVOA Round 1 AI Product Engineer** technical assignment accordi
 
 ---
 
-## 🚀 Key Features & The 3 AI Tools
+## Key Features & The 3 AI Tools
 
 ### 1. Tool 1: Log Complaint Tool
 - Extracts pharma-specific attributes from free-form natural language prompts:
@@ -104,7 +104,7 @@ Built for the **AIVOA Round 1 AI Product Engineer** technical assignment accordi
 
 ---
 
-## 📦 Mandatory Technology Stack
+## Mandatory Technology Stack
 
 | Layer | Technology | Details |
 |---|---|---|
@@ -163,7 +163,7 @@ Open **`http://localhost:5173`** in your browser.
 
 ---
 
-## 🧪 Running Automated Tests
+## Running Automated Tests
 
 Run the complete test suite:
 ```bash
@@ -178,50 +178,7 @@ All tests pass including:
 - GMP Completeness Checker
 - Complaints Database CRUD & Status transitions
 
----
-
-## 📹 Video Walkthrough & Demo Guide (for 5–10 min submission)
-
-When recording your demo video, follow this recommended sequence:
-
-1. **Introduction (1 min)**:
-   - Introduce yourself and the system: AIVOA AI-Powered Customer Complaint Management System for API & FDF pharmaceutical manufacturing.
-   - Highlight the split-screen paradigm: "Log Customer Complaint" form on the left, "AI Complaint Intake Assistant" on the right.
-   - Explain that users interact primarily through the AI Co-pilot rather than manual form entry.
-
-2. **Demonstration of Tool 1: Log Complaint Tool (2 mins)**:
-   - Click one of the quick prompt chips or type:
-     *"Dr. Reddy's Hospital reported that Batch B24019 of Paracetamol 500mg tablets has dark brownish discoloration and chipping. Mfg Date: 2024-01-15, Exp Date: 2026-01-14. 120 bottles affected. Customer contacted via Email on 2024-05-10."*
-   - Show how the AI Co-pilot processes the prompt, updates the extraction progress bar, and automatically populates all 12 form fields.
-   - Switch to the **AI Risk Assessment** tab on the left to show severity (`Major`), priority (`High`), immediate containment actions, and Ishikawa 5M+E root causes.
-   - Show the **GMP Completeness** tab (100% Audit Ready score).
-
-3. **Demonstration of Tool 2: Edit Complaint Tool (1.5 mins)**:
-   - In the chat, type an edit request:
-     *"Actually, the batch number should be BN-98421 and the quantity affected is 250 bottles. Also please mark severity as Critical."*
-   - Point out that only the batch number, quantity, and severity changed, while customer name, product name, and dates remained strictly preserved.
-   - Point out the real-time green field highlight indicating the updated attributes.
-   - Point out that the risk assessment re-evaluated severity to `Critical` and updated containment actions.
-
-4. **Demonstration of Tool 3: Document Extraction Tool (2 mins)**:
-   - Click **Sample Documents** in the top navbar, or drag and drop `backend/samples/sample_complaint_paracetamol.pdf`.
-   - Watch the animated extraction progress bar (`15%` → `45%` → `80%` → `100%`).
-   - Show how the PDF text was parsed and populated into the form.
-   - Repeat or mention the `sample_complaint_atorvastatin.eml` sample to highlight handling both Finished Dosage Forms (FDF) and raw bulk Active Pharmaceutical Ingredients (API).
-
-5. **Saving & Complaint Registry (1 min)**:
-   - Click **Save Complaint** at the bottom of the form.
-   - Open **Complaint Registry** in the top navbar to see the complaint saved in the SQLite/Postgres database with complaint number (e.g. `CC-2024-0001`).
-   - Demonstrate changing the status (e.g. to `Under Investigation`) and exporting to JSON.
-
-6. **Code Architecture Walkthrough (2-3 mins)**:
-   - **Frontend**: Show `frontend/src/store/complaintSlice.js` and `frontend/src/components/ComplaintForm.jsx`.
-   - **Backend**: Show `backend/routes/ai.py` and `backend/agents/graph.py` (LangGraph `StateGraph` nodes and conditional routing).
-   - **Groq Integration**: Show `backend/agents/groq_client.py` and explain support for `gemma2-9b-it` and `llama-3.3-70b-versatile`.
-
----
-
-## ⚖️ Pharmaceutical Regulatory Compliance Standards
+## Pharmaceutical Regulatory Compliance Standards
 This application incorporates key tenets of global pharmaceutical regulatory standards:
 - **US FDA 21 CFR 211.198 (Complaint Files)**: Mandates written records of each complaint, evaluation of serious and unexpected defects, determination of whether an investigation is required, and documented follow-up.
 - **EU GMP Guide Chapter 8 (Complaints and Product Recall)**: Triage principles, Quality Defect classification (Critical / Major / Other), and distribution restriction.
