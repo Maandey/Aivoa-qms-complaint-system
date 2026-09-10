@@ -99,8 +99,12 @@ export default function ComplaintForm() {
           </p>
         </div>
 
-        {/* Status Pill matching screenshot */}
+        {/* Status Pill & Compliance Tag */}
         <div className="flex items-center gap-2">
+          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 bg-slate-100/80 px-2 py-0.5 rounded border border-slate-200">
+            <CheckCircle className="w-3 h-3 text-emerald-600" />
+            <span>ALCOA+ Traceable</span>
+          </span>
           <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/80 shadow-xs">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse" />
             {form.status || 'Pending Triage'}
